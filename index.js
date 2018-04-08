@@ -1,43 +1,27 @@
+#!/usr/bin/env node
+
 const fs = require('fs');
-const chalk = require('chalk');
 const command = require('./command');
 
-const parents = [];
-
-const executeChildren = (path, currentFile, argv) => program => {
-  parents.push(currentFile);
-  program.commands = [];
-  const args = argv.filter(arg => !parents.includes(arg));
-  findDefinitions(`${path}/${currentFile}`, args);
-};
-
-const findDefinitions = (path, argv) => {
+const find = path => {
   const files = fs.readdirSync(path).filter(f => f !== 'index.json');
+  const commands = [];
 
   files.forEach(file => {
     const stat = fs.lstatSync(`${path}/${file}`);
     if (stat.isDirectory()) {
       const cmd = require(`${path}/${file}/index.json`);
-      command.add({
+      commands.push({
         ...cmd,
-        ...{ long: file, exec: executeChildren(path, file, argv) },
+        ...{ name: file, commands: find(`${path}/${file}`) },
       });
     } else if (stat.isFile()) {
       const def = require(`${path}/${file}`);
-      command.add(def);
+      commands.push(def);
     }
   });
 
-  command.parse(argv);
-
-  const hasNoCommand = () => process.argv.length < 3;
-
-  if (hasNoCommand()) {
-    command.displayHelp();
-  } else if (!command.hasExecuted()) {
-    console.error(chalk.red(`error: unknown command`));
-    process.exit(1);
-  }
+  return commands;
 };
-
-findDefinitions('./commands', process.argv);
+const commands = { name: 'root', commands: find('./commands') };
+command.run(process.argv, commands);

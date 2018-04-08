@@ -6,7 +6,7 @@ const exec = (cmd, path) => {
       # cd ${path}
       ${cmd}
   `;
-  console.log(`${chalk.bgMagenta.black(cmd)}`);
+  console.log(`> ${cmd}`);
   const execution = shell.exec(script);
   process.exitCode = execution.code;
   return execution;

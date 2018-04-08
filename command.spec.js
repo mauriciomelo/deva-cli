@@ -21,20 +21,6 @@ describe('command', () => {
     };
   });
 
-  describe('#parse()', () => {
-    it('parse args', () => {
-      command.parse('args');
-      expect(program.parse).toBeCalledWith('args');
-    });
-  });
-
-  describe('#displayHelp()', () => {
-    it('displays help', () => {
-      command.displayHelp();
-      expect(program.help).toBeCalled();
-    });
-  });
-
   describe('#hasExecuted()', () => {
     it('is false if no command was executed', () => {
       expect(command.hasExecuted()).toBe(false);
@@ -46,17 +32,69 @@ describe('command', () => {
     });
   });
 
+  describe('#run()', () => {
+    it('executes parents commands', () => {
+      const defs = {
+        name: 'root',
+        commands: [
+          {
+            name: 'child',
+            exec: 'npm run sub',
+          },
+          {
+            name: 'child2',
+            exec: 'npm run sub',
+          },
+        ],
+      };
+      const argv = [null, null];
+      command.run(argv, defs);
+
+      expect(program.command).toBeCalledWith('child');
+      expect(program.command).toBeCalledWith('child2');
+      expect(program.parse).toBeCalledWith(argv);
+    });
+    it('executes child commands', () => {
+      const defs = {
+        name: 'root',
+        commands: [
+          {
+            name: 'parent',
+            commands: [
+              {
+                name: 'child',
+                exec: 'npm run sub',
+              },
+            ],
+          },
+        ],
+      };
+      const argv = [null, null, 'parent', 'child'];
+      command.run(argv, defs);
+
+      expect(program.command).toBeCalledWith('child');
+      expect(program.parse).toBeCalledWith([null, null, 'child']);
+    });
+  });
+
+  describe('#displayHelp()', () => {
+    it('displays help', () => {
+      command.displayHelp();
+      expect(program.help).toBeCalled();
+    });
+  });
+
   describe('#add()', () => {
-    it('sets the command long name', () => {
-      const long = 'long name';
-      command.add({ long });
-      expect(program.command).toBeCalledWith(long);
+    it('sets the command name name', () => {
+      const name = 'name name';
+      command.add({ name });
+      expect(program.command).toBeCalledWith(name);
     });
 
-    it('sets the command short name (alias)', () => {
-      const short = 'short name';
-      command.add({ short });
-      expect(program.alias).toBeCalledWith(short);
+    it('sets the command alias name (alias)', () => {
+      const alias = 'alias name';
+      command.add({ alias });
+      expect(program.alias).toBeCalledWith(alias);
     });
 
     it('sets the command description', () => {
@@ -78,7 +116,7 @@ describe('command', () => {
         exec: 'npm run sometask',
         options: [
           {
-            long: 'theOption',
+            name: 'theOption',
             prepend: 'SOMETHING=${theOption}',
           },
         ],
@@ -93,8 +131,8 @@ describe('command', () => {
         exec: 'npm run sometask',
         options: [
           {
-            long: 'test',
-            short: 't',
+            name: 'test',
+            alias: 't',
             argument: '<@tags>',
             description: 'run the tests',
             prepend: 'SOMETHING=${theOption}',
