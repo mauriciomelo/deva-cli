@@ -21,17 +21,6 @@ describe('command', () => {
     };
   });
 
-  describe('#hasExecuted()', () => {
-    it('is false if no command was executed', () => {
-      expect(command.hasExecuted()).toBe(false);
-    });
-    it('is true if any command was executed', () => {
-      const exec = 'npm run sometask';
-      command.add({ exec }); // our mock autoexecutes the added comand
-      expect(command.hasExecuted()).toBe(true);
-    });
-  });
-
   describe('#run()', () => {
     it('executes parents commands', () => {
       const defs = {
@@ -54,6 +43,7 @@ describe('command', () => {
       expect(program.command).toBeCalledWith('child2');
       expect(program.parse).toBeCalledWith(argv);
     });
+
     it('executes child commands', () => {
       const defs = {
         name: 'root',
@@ -75,75 +65,131 @@ describe('command', () => {
       expect(program.command).toBeCalledWith('child');
       expect(program.parse).toBeCalledWith([null, null, 'child']);
     });
-  });
 
-  describe('#displayHelp()', () => {
-    it('displays help', () => {
-      command.displayHelp();
-      expect(program.help).toBeCalled();
-    });
-  });
-
-  describe('#add()', () => {
     it('sets the command name name', () => {
-      const name = 'name name';
-      command.add({ name });
-      expect(program.command).toBeCalledWith(name);
+      const defs = {
+        name: 'root',
+        commands: [
+          {
+            name: 'command',
+          },
+        ],
+      };
+      const argv = [null, null];
+      command.run(argv, defs);
+
+      expect(program.command).toBeCalledWith('command');
     });
 
     it('sets the command alias name (alias)', () => {
-      const alias = 'alias name';
-      command.add({ alias });
-      expect(program.alias).toBeCalledWith(alias);
+      const defs = {
+        name: 'root',
+        commands: [
+          {
+            alias: 'alias',
+          },
+        ],
+      };
+      const argv = [null, null];
+      command.run(argv, defs);
+      expect(program.alias).toBeCalledWith('alias');
     });
 
     it('sets the command description', () => {
       const description = 'imagine an informative description here';
-      command.add({ description });
+      const defs = {
+        name: 'root',
+        commands: [
+          {
+            description,
+          },
+        ],
+      };
+      const argv = [null, null];
+      command.run(argv, defs);
       expect(program.description).toBeCalledWith(description);
     });
 
     it('sets the command to be executed', () => {
       const exec = 'npm run sometask';
-      command.add({ exec });
+      const defs = {
+        name: 'root',
+        commands: [
+          {
+            exec,
+          },
+        ],
+      };
+      const argv = [null, null];
+      command.run(argv, defs);
       expect(executor.exec).toBeCalledWith(exec);
     });
 
     it('resolves options if provided', () => {
       options = { theOption: 'optionValue' };
 
-      command.add({
-        exec: 'npm run sometask',
-        options: [
+      const defs = {
+        name: 'root',
+        commands: [
           {
-            name: 'theOption',
-            prepend: 'SOMETHING=${theOption}',
+            exec: 'npm run sometask',
+            options: [
+              {
+                name: 'theOption',
+                prepend: 'SOMETHING=${theOption}',
+              },
+            ],
           },
         ],
-      });
+      };
+      const argv = [null, null];
+      command.run(argv, defs);
+
       expect(executor.exec).toBeCalledWith(
         'SOMETHING=optionValue npm run sometask'
       );
     });
 
     it('adds options of the commands', () => {
-      command.add({
-        exec: 'npm run sometask',
-        options: [
+      const defs = {
+        name: 'root',
+        commands: [
           {
-            name: 'test',
-            alias: 't',
-            argument: '<@tags>',
-            description: 'run the tests',
-            prepend: 'SOMETHING=${theOption}',
+            exec: 'npm run sometask',
+            options: [
+              {
+                name: 'test',
+                alias: 't',
+                argument: '<@tags>',
+                description: 'run the tests',
+                prepend: 'SOMETHING=${theOption}',
+              },
+            ],
           },
         ],
-      });
+      };
+      const argv = [null, null];
+      command.run(argv, defs);
 
       expect(program.option).toBeCalledWith(
         `-t, --test <@tags>`,
         'run the tests'
       );
+    });
+
+    it('displays help if no command provided', () => {
+      const defs = {
+        name: 'root',
+        commands: [
+          {
+            name: 'command',
+            exec: 'npm run sometask',
+          },
+        ],
+      };
+      const argv = [null, null];
+      command.run(argv, defs);
+      expect(program.help).toBeCalled();
     });
   });
 });

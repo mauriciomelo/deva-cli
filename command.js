@@ -83,9 +83,5 @@ const run = (argv, defs) => {
 };
 
 module.exports = {
-  add,
-  hasExecuted,
-  displayHelp,
-  parse,
   run,
 };
