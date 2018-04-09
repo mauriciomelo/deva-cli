@@ -125,56 +125,81 @@ describe('command', () => {
       expect(executor.exec).toBeCalledWith(exec);
     });
 
-    it('resolves options if provided', () => {
-      options = { theOption: 'optionValue' };
+    describe('options parsing', () => {
+      it('handles prepend', () => {
+        options = { theOption: 'optionValue' };
 
-      const defs = {
-        name: 'root',
-        commands: [
-          {
-            exec: 'npm run sometask',
-            options: [
-              {
-                name: 'theOption',
-                prepend: 'SOMETHING=${theOption}',
-              },
-            ],
-          },
-        ],
-      };
-      const argv = [null, null];
-      command.run(argv, defs);
+        const defs = {
+          name: 'root',
+          commands: [
+            {
+              exec: 'npm run sometask',
+              options: [
+                {
+                  name: 'theOption',
+                  prepend: 'SOMETHING=${theOption}',
+                },
+              ],
+            },
+          ],
+        };
+        const argv = [null, null];
+        command.run(argv, defs);
 
-      expect(executor.exec).toBeCalledWith(
-        'SOMETHING=optionValue npm run sometask'
-      );
-    });
+        expect(executor.exec).toBeCalledWith(
+          'SOMETHING=optionValue npm run sometask'
+        );
+      });
 
-    it('adds options of the commands', () => {
-      const defs = {
-        name: 'root',
-        commands: [
-          {
-            exec: 'npm run sometask',
-            options: [
-              {
-                name: 'test',
-                alias: 't',
-                argument: '<@tags>',
-                description: 'run the tests',
-                prepend: 'SOMETHING=${theOption}',
-              },
-            ],
-          },
-        ],
-      };
-      const argv = [null, null];
-      command.run(argv, defs);
+      it('handles append', () => {
+        options = { theOption: 'appended value' };
 
-      expect(program.option).toBeCalledWith(
-        `-t, --test <@tags>`,
-        'run the tests'
-      );
+        const defs = {
+          name: 'root',
+          commands: [
+            {
+              exec: 'npm run sometask',
+              options: [
+                {
+                  name: 'theOption',
+                  append: '${theOption}',
+                },
+              ],
+            },
+          ],
+        };
+        const argv = [null, null];
+        command.run(argv, defs);
+
+        expect(executor.exec).toBeCalledWith('npm run sometask appended value');
+      });
+
+      it('adds options of the commands', () => {
+        const defs = {
+          name: 'root',
+          commands: [
+            {
+              exec: 'npm run sometask',
+              options: [
+                {
+                  name: 'test',
+                  alias: 't',
+                  argument: '<@tags>',
+                  description: 'run the tests',
+                  prepend: 'SOMETHING=${theOption}',
+                },
+              ],
+            },
+          ],
+        };
+        const argv = [null, null];
+        command.run(argv, defs);
+
+        expect(program.option).toBeCalledWith(
+          `-t, --test <@tags>`,
+          'run the tests'
+        );
+      });
     });
 
     it('displays help if no command provided', () => {

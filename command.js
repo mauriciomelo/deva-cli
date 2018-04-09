@@ -12,21 +12,27 @@ const optionsAsArgs = (options = []) =>
     return [flags, option.description];
   });
 
+const parseOptionFor = (command, options, position) =>
+  command.options &&
+  command.options
+    .filter(option => options[option.name] && option[position])
+    .map(option =>
+      option[position].replace(`\${${option.name}}`, options[option.name])
+    )
+    .join(' ');
+
 const actionFor = command => options => {
   if (isFunction(command.exec)) {
     return command.exec(program);
   }
   wasActionCalled = true;
-  const prepend =
-    command.options &&
-    command.options
-      .filter(option => options[option.name] && option.prepend)
-      .map(option =>
-        option.prepend.replace(`\${${option.name}}`, options[option.name])
-      )
-      .join(' ');
 
-  const finelCmdString = [prepend, command.exec].filter(Boolean).join(' ');
+  const prepend = parseOptionFor(command, options, 'prepend');
+  const append = parseOptionFor(command, options, 'append');
+
+  const finelCmdString = [prepend, command.exec, append]
+    .filter(Boolean)
+    .join(' ');
 
   executor.exec(finelCmdString);
 };
