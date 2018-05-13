@@ -1,0 +1,18 @@
+{
+  "name": "deva",
+  "commands": [
+    {
+      "name": "test",
+      "alias": "t",
+      "exec": "npm run test",
+      "options": [
+        {
+          "name": "watch",
+          "alias": "w",
+          "description": "watch mode",
+          "append": "-- --watch"
+        }
+      ]
+    }
+  ]
+}
