@@ -33,8 +33,7 @@ const actionFor = command => options => {
   const finelCmdString = [prepend, command.exec, append]
     .filter(Boolean)
     .join(' ');
-
-  executor.exec(finelCmdString);
+  executor.exec(finelCmdString, command.path || '.');
 };
 
 const add = command => {
@@ -52,18 +51,20 @@ const hasExecuted = () => wasActionCalled;
 const displayHelp = () => program.help();
 const parse = args => program.parse(args);
 
-const findMatch = (args, command) => {
+const findMatch = (args, command, path) => {
+  const excutionPath = command.path || path;
   const childCommand =
     Array.isArray(command.commands) &&
-    command.commands.find(c => c.name === args[1]);
+    command.commands.find(c => c.name === args[1] || (c.alias === args[1] && c.alias));
   if (childCommand) {
-    return findMatch(args.slice(1), childCommand);
+    return findMatch(args.slice(1), childCommand, excutionPath);
   }
-  return { command, args };
+  return { command: {...command, ...{path: excutionPath}}, args };
 };
 
 const run = (argv, defs) => {
   const { command, args } = findMatch([...['root'], ...argv.slice(2)], defs);
+
   let isRoot = false;
   if (Array.isArray(command.commands)) {
     command.commands.forEach(add);

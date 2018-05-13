@@ -3,7 +3,7 @@ const shell = require('child_process');
 
 const exec = (cmd, path) => {
   const script = `
-      # cd ${path}
+      cd ${path}
       ${cmd}
   `;
   console.log(`> ${cmd}`);

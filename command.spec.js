@@ -122,7 +122,37 @@ describe('command', () => {
       };
       const argv = [null, null];
       command.run(argv, defs);
-      expect(executor.exec).toBeCalledWith(exec);
+      expect(executor.exec).toBeCalledWith(exec, expect.anything());
+    });
+
+    it('executes command in a given path if provided', () => {
+      const defs = {
+        name: 'root',
+        commands: [
+          {
+            exec: 'script',
+            path: '../path',
+          },
+        ],
+      };
+      const argv = [null, null];
+      command.run(argv, defs);
+      expect(executor.exec).toBeCalledWith(expect.anything(), '../path');
+    });
+
+    it('inherits parents execution path', () => {
+      const defs = {
+        name: 'root',
+        path: '../path',
+        commands: [
+          {
+            exec: 'script',
+          },
+        ],
+      };
+      const argv = [null, null];
+      command.run(argv, defs);
+      expect(executor.exec).toBeCalledWith(expect.anything(), '../path');
     });
 
     describe('options parsing', () => {
@@ -147,7 +177,8 @@ describe('command', () => {
         command.run(argv, defs);
 
         expect(executor.exec).toBeCalledWith(
-          'SOMETHING=optionValue npm run sometask'
+          'SOMETHING=optionValue npm run sometask',
+          expect.anything()
         );
       });
 
@@ -171,7 +202,10 @@ describe('command', () => {
         const argv = [null, null];
         command.run(argv, defs);
 
-        expect(executor.exec).toBeCalledWith('npm run sometask appended value');
+        expect(executor.exec).toBeCalledWith(
+          'npm run sometask appended value',
+          expect.anything()
+        );
       });
 
       it('adds options of the commands', () => {
