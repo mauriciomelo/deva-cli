@@ -1,5 +1,5 @@
 const program = require('commander');
-const isFunction = require('lodash.isfunction');
+const _ = require('lodash');
 const executor = require('./executor');
 const chalk = require('chalk');
 
@@ -15,16 +15,13 @@ const optionsAsArgs = (options = []) =>
 const parseOptionFor = (command, options, position) =>
   command.options &&
   command.options
-    .filter(option => options[option.name] && option[position])
+    .filter(option => options[_.camelCase(option.name)] && option[position])
     .map(option =>
-      option[position].replace(`\${${option.name}}`, options[option.name])
+      option[position].replace(`\${${_.camelCase(option.name)}}`, options[_.camelCase(option.name)])
     )
     .join(' ');
 
 const actionFor = command => options => {
-  if (isFunction(command.exec)) {
-    return command.exec(program);
-  }
   wasActionCalled = true;
 
   const prepend = parseOptionFor(command, options, 'prepend');

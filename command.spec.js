@@ -244,7 +244,7 @@ describe('command', () => {
               exec: 'npm run sometask',
               options: [
                 {
-                  name: 'theOption',
+                  name: 'the-option',
                   append: '${theOption}',
                 },
               ],
