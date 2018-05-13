@@ -74,7 +74,7 @@ const run = (argv, defs) => {
   }
   const parsedArgs = [
     ...argv.slice(0, 2),
-    ...args.filter(a => !isRoot || a !== command.name),
+    ...args.filter(a => !isRoot || (a !== command.name && a !== command.alias)),
   ];
 
   program.parse(parsedArgs);

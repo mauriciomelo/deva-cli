@@ -44,6 +44,34 @@ describe('command', () => {
       expect(program.parse).toBeCalledWith(argv);
     });
 
+    it('executes parents commands by alias', () => {
+      const defs = {
+        name: 'root',
+        commands: [
+          {
+            name: 'parent',
+            alias: 'dad',
+            commands: [
+              {
+                name: 'child',
+                exec: 'npm run sub',
+              },
+              {
+                name: 'child2',
+                exec: 'npm run sub',
+              },
+            ],
+          },
+        ],
+      };
+      const argv = [null, null, 'dad'];
+      command.run(argv, defs);
+
+      expect(program.command).toBeCalledWith('child');
+      expect(program.command).toBeCalledWith('child2');
+      expect(program.parse).toBeCalledWith([null, null]);
+    });
+
     it('executes child commands', () => {
       const defs = {
         name: 'root',
@@ -66,7 +94,31 @@ describe('command', () => {
       expect(program.parse).toBeCalledWith([null, null, 'child']);
     });
 
-    it('sets the command name name', () => {
+    it('executes commands by alias', () => {
+      const defs = {
+        name: 'root',
+        commands: [
+          {
+            name: 'parent',
+            alias: 'p',
+            commands: [
+              {
+                name: 'child',
+                alias: 'c',
+                exec: 'npm run sub',
+              },
+            ],
+          },
+        ],
+      };
+      const argv = [null, null, 'p', 'c'];
+      command.run(argv, defs);
+
+      expect(program.command).toBeCalledWith('child');
+      expect(program.parse).toBeCalledWith([null, null, 'c']);
+    });
+
+    it('sets the command name', () => {
       const defs = {
         name: 'root',
         commands: [
@@ -81,7 +133,7 @@ describe('command', () => {
       expect(program.command).toBeCalledWith('command');
     });
 
-    it('sets the command alias name (alias)', () => {
+    it('sets the command alias', () => {
       const defs = {
         name: 'root',
         commands: [
