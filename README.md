@@ -55,3 +55,30 @@ Executing `deva test --watch` the output should be:
 > echo running the tests... watch mode
 running the tests... watch mode
 ```
+
+### $ref pointers
+
+You can use JSON Schema with $ref pointers to other files and/or URLs so you can better organize and reuse your commands.
+
+```
+{
+  "commands": [
+    {
+      // references an external file
+      "$ref": "api.commands.json"
+    },
+    {
+      // references a sub-schema in an external file
+      "$ref": "shared/client#/definitions/test"
+    },
+    {
+      // references a URL
+      "$ref": "http://example.com/commands/json"
+    },
+    {
+      // references a value in an external file via an internal reference
+      "$ref": "#/definitions/thing/properties/commands"
+    }
+  ]
+}
+```
