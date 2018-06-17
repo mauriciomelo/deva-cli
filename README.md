@@ -1,5 +1,7 @@
 # Deva - Development CLI
 
+[![CircleCI](https://circleci.com/gh/mauriciomelo/deva-cli/tree/master.svg?style=svg)](https://circleci.com/gh/mauriciomelo/deva-cli/tree/master)
+
 Create CLIs for your projects
 
 ### Creating a "test" command

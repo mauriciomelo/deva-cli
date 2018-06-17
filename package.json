@@ -1,13 +1,17 @@
 {
-  "name": "deva",
+  "name": "deva-cli",
   "version": "0.0.1",
-  "description": "",
+  "description": "Dev CLI",
   "main": "index.js",
   "scripts": {
     "test": "jest"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Mauricio Melo",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mauriciomelo/deva-cli.git"
+  },
+  "license": "MIT",
   "bin": {
     "deva": "index.js"
   },
