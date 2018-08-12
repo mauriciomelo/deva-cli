@@ -22,6 +22,7 @@
     "lodash": "^4.17.10"
   },
   "devDependencies": {
+    "fs-extra": "^7.0.0",
     "jest": "^22.4.3"
   }
 }
